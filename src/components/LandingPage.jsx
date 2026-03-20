@@ -1,10 +1,85 @@
-import { motion } from 'framer-motion';
-import { Download, Rocket, Shield, Heart, ArrowRight, Wallet } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Download, Rocket, Shield, Heart, ArrowRight, Wallet, X, Share, Smartphone, Monitor } from 'lucide-react';
+import { useState } from 'react';
 import PixelMallow from './PixelMallow';
 
 const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
+  const handleDownloadClick = () => {
+    if (isInstallable) {
+      onInstall();
+    } else {
+      setShowInstallModal(true);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E8F8FB] to-white transition-colors duration-500 overflow-x-hidden flex flex-col justify-center items-center">
+    <div className="min-h-screen bg-gradient-to-b from-[#E8F8FB] to-white transition-colors duration-500 overflow-x-hidden flex flex-col justify-center items-center relative">
+      <AnimatePresence>
+        {showInstallModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/40 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative border-4 border-mallow-light-blue"
+            >
+              <button
+                onClick={() => setShowInstallModal(false)}
+                className="absolute top-4 right-4 p-2 hover:bg-black/5 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-mallow-light-blue/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Download className="text-mallow-light-text" size={32} />
+                </div>
+                <h2 className="font-press-start text-[14px] leading-relaxed text-mallow-light-text">HOW TO INSTALL</h2>
+                <p className="font-pixel text-lg opacity-60 mt-2">Get MallowMoney on your device!</p>
+              </div>
+
+              <div className="space-y-6">
+                {/* iOS Instructions */}
+                <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
+                  <div className="p-2 bg-white rounded-xl shadow-sm">
+                    <Smartphone size={20} className="text-mallow-light-text" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm mb-1">iOS (iPhone/iPad)</h3>
+                    <p className="text-xs opacity-70 leading-relaxed">Tap the <Share size={14} className="inline mx-1" /> icon then select <strong>"Add to Home Screen"</strong></p>
+                  </div>
+                </div>
+
+                {/* Android / Chrome Instructions */}
+                <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
+                  <div className="p-2 bg-white rounded-xl shadow-sm">
+                    <Monitor size={20} className="text-mallow-light-text" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm mb-1">Android / Desktop</h3>
+                    <p className="text-xs opacity-70 leading-relaxed">Look for the <strong>Install Icon</strong> in your browser's address bar or menu.</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowInstallModal(false)}
+                className="w-full mt-8 py-4 bg-mallow-light-blue text-mallow-light-text font-press-start text-[10px] rounded-2xl shadow-lg border-2 border-white hover:scale-[1.02] active:scale-95 transition-all"
+              >
+                GOT IT!
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Hero Section */}
       <section className="relative w-full max-w-4xl mx-auto px-6 py-12 flex flex-col items-center justify-center min-h-[80vh]">
         <div className="text-center w-full">
@@ -46,9 +121,9 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-6xl md:text-8xl font-black mb-8 tracking-tighter"
+            className="text-4xl xs:text-5xl sm:text-7xl md:text-8xl font-black mb-8 tracking-tighter text-center w-full px-4"
           >
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-mallow-light-blue to-[#7DCED9]">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-mallow-light-blue to-[#7DCED9] block w-full">
               MallowMoney
             </span>
           </motion.h1>
@@ -71,20 +146,13 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
             {/* Primary Action: Download for Free */}
             {(!isInstalled) && (
               <button
-                onClick={onInstall}
+                onClick={handleDownloadClick}
                 className="group relative px-12 py-6 bg-mallow-light-blue text-mallow-light-text font-press-start text-[12px] md:text-[14px] rounded-2xl shadow-[0_20px_50px_rgba(176,224,230,0.6)] hover:shadow-[0_25px_60px_rgba(176,224,230,0.8)] transform hover:-translate-y-2 active:scale-95 transition-all flex items-center gap-4 overflow-hidden border-2 border-white/50 w-full max-w-sm justify-center"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/40 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                 <Download size={24} />
                 DOWNLOAD FOR FREE
               </button>
-            )}
-
-            {/* Hint for non-Chromium browsers if not installable */}
-            {!isInstallable && !isInstalled && (
-              <p className="font-pixel text-sm opacity-50 -mt-2">
-                *To install on iOS: Tap Share then "Add to Home Screen"
-              </p>
             )}
 
             {/* Secondary Action: Use in Browser */}
