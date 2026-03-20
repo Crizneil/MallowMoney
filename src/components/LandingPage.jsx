@@ -5,9 +5,12 @@ import PixelMallow from './PixelMallow';
 
 const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   const handleDownloadClick = () => {
-    if (isInstallable) {
+    if (isIOS) {
+      setShowInstallModal(true);
+    } else if (isInstallable) {
       onInstall();
     } else {
       setShowInstallModal(true);
@@ -47,26 +50,30 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
 
               <div className="space-y-6">
                 {/* iOS Instructions */}
-                <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
-                  <div className="p-2 bg-white rounded-xl shadow-sm">
-                    <Smartphone size={20} className="text-mallow-light-text" />
+                {isIOS && (
+                  <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
+                    <div className="p-2 bg-white rounded-xl shadow-sm">
+                      <Smartphone size={20} className="text-mallow-light-text" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm mb-1">iOS (iPhone/iPad)</h3>
+                      <p className="text-xs opacity-70 leading-relaxed">Tap the <Share size={14} className="inline mx-1" /> icon then select <strong>"Add to Home Screen"</strong></p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-sm mb-1">iOS (iPhone/iPad)</h3>
-                    <p className="text-xs opacity-70 leading-relaxed">Tap the <Share size={14} className="inline mx-1" /> icon then select <strong>"Add to Home Screen"</strong></p>
-                  </div>
-                </div>
+                )}
 
                 {/* Android / Chrome Instructions */}
-                <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
-                  <div className="p-2 bg-white rounded-xl shadow-sm">
-                    <Monitor size={20} className="text-mallow-light-text" />
+                {!isIOS && (
+                  <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
+                    <div className="p-2 bg-white rounded-xl shadow-sm">
+                      <Monitor size={20} className="text-mallow-light-text" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm mb-1">Android / Desktop</h3>
+                      <p className="text-xs opacity-70 leading-relaxed">Look for the <strong>Install Icon</strong> in your browser's address bar or menu.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-sm mb-1">Android / Desktop</h3>
-                    <p className="text-xs opacity-70 leading-relaxed">Look for the <strong>Install Icon</strong> in your browser's address bar or menu.</p>
-                  </div>
-                </div>
+                )}
               </div>
 
               <button
