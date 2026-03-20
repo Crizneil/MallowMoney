@@ -47,6 +47,26 @@ MallowMoney is a minimalist, aesthetic financial tracker designed to make saving
 
 ---
 
+## 🔄 How to Update
+
+To keep your project organized, follow this simple workflow:
+
+1. **Save your Code (Draft/Source)**:
+   Push your changes to the `main` branch to backup your React files.
+   ```bash
+   git add .
+   git commit -m "Your update message"
+   git push origin main
+   ```
+
+2. **Update the Website (Live site)**:
+   Run the deploy command to build and push the production version to the `gh-pages` branch.
+   ```bash
+   npm run deploy
+   ```
+
+---
+
 ## Sneak Peek
 
 | Landing Page (Refined) | Privacy Mode (Masked) |
