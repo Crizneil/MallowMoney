@@ -1,11 +1,11 @@
 const AUDIO_URLS = {
-  loading: 'https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3', // Soft Lofi
-  beach: 'https://assets.mixkit.co/music/preview/mixkit-island-beat-250.mp3', // Happy Acoustic/Island
-  forest: 'https://assets.mixkit.co/music/preview/mixkit-forest-river-591.mp3', // Chill Forest/Nature
-  click: 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3',
-  success: 'https://assets.mixkit.co/active_storage/sfx/2007/2007-preview.mp3', // Short coin clink
-  waves: 'https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3',
-  fire: 'https://assets.mixkit.co/active_storage/sfx/2436/2436-preview.mp3'
+  bgm: '/MallowMoney/sounds/bgm.mp3',
+  lightmode: '/MallowMoney/sounds/lightmode.mp3',
+  darkmode: '/MallowMoney/sounds/darkmode.mp3',
+  click: '/MallowMoney/sounds/click.mp3',
+  toggle: '/MallowMoney/sounds/toggle.mp3',
+  success: 'https://assets.mixkit.co/active_storage/sfx/2007/2007-preview.mp3',
+  loading: 'https://assets.mixkit.co/music/preview/mixkit-beautiful-dream-493.mp3'
 };
 
 class AudioManager {

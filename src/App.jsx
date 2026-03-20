@@ -41,6 +41,7 @@ function App() {
     balance 
   } = useFinanceData();
   const { theme, toggleTheme } = useTheme();
+  const [isPlayingMusic, setIsPlayingMusic] = useState(false);
 
   const income = transactions
     .filter(t => t.amount > 0)
@@ -53,6 +54,17 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mallow_privacy_mode', JSON.stringify(showBalance));
   }, [showBalance]);
+
+  const handleToggleMusic = () => {
+    audioManager.playSFX('toggle');
+    if (isPlayingMusic) {
+      audioManager.stopAll();
+      setIsPlayingMusic(false);
+    } else {
+      audioManager.playBGM('bgm');
+      setIsPlayingMusic(true);
+    }
+  };
 
   const maskAmount = (amount) => {
     if (showBalance) return amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -92,7 +104,8 @@ function App() {
             <div className="flex items-center space-x-3">
               <button 
                 onClick={() => {
-                  audioManager.playSFX('click');
+                  const nextTheme = theme === 'dark' ? 'light' : 'dark';
+                  audioManager.playSFX(nextTheme + 'mode');
                   toggleTheme();
                 }}
                 className="p-3 rounded-2xl bg-mallow-light-blue/20 dark:bg-white/5 border border-mallow-light-blue/30 dark:border-white/10 hover:scale-110 active:scale-95 transition-all text-mallow-light-text dark:text-white"
@@ -152,7 +165,12 @@ function App() {
 
             {/* Pixel Mallow Widget */}
             <div className="mt-8 mb-6">
-              <PixelMallow balance={balance} theme={theme} />
+              <PixelMallow 
+                balance={balance} 
+                theme={theme} 
+                onToggleMusic={handleToggleMusic}
+                isPlayingMusic={isPlayingMusic}
+              />
             </div>
 
             {/* Accounts Section */}
@@ -190,7 +208,10 @@ function App() {
             {/* Transaction History */}
             <TransactionList 
               transactions={transactions} 
-              onDelete={deleteTransaction}
+              onDelete={(id) => {
+                audioManager.playSFX('click');
+                deleteTransaction(id);
+              }}
               showBalance={showBalance}
             />
           </main>

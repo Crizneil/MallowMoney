@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { Music, Volume2 } from 'lucide-react';
 
 const MONEY_NOTES = [
   "Ipon-ipon din pag may time! 🐷",
@@ -12,10 +13,23 @@ const MONEY_NOTES = [
   "Piso-piso, lalago rin yan! 💹"
 ];
 
-const PixelMallow = ({ balance, theme, variant = 'default', scale = 1 }) => {
+const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleMusic, isPlayingMusic }) => {
   const [note, setNote] = useState(MONEY_NOTES[0]);
   const [showNote, setShowNote] = useState(true);
   const [isBlinking, setIsBlinking] = useState(false);
+  const [mallowScale, setMallowScale] = useState(1);
+
+  // Wobble effect when music is playing
+  useEffect(() => {
+    if (isPlayingMusic) {
+      const wobbleInterval = setInterval(() => {
+        setMallowScale(s => s === 1 ? 1.05 : 1);
+      }, 500);
+      return () => clearInterval(wobbleInterval);
+    } else {
+      setMallowScale(1);
+    }
+  }, [isPlayingMusic]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -180,10 +194,35 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1 }) => {
             animate={isRunning ? { 
               y: [0, -4, 0],
               x: [-2, 2, -2]
-            } : { y: [0, 2, 0] }}
-            transition={{ duration: isRunning ? 0.3 : 3, repeat: Infinity, ease: isRunning ? "linear" : "easeInOut" }}
-            className="flex flex-col items-center"
+            } : { 
+              y: [0, 2, 0],
+              scale: mallowScale
+            }}
+            transition={isRunning ? { duration: 0.3, repeat: Infinity, ease: "linear" } : { duration: isPlayingMusic ? 0.5 : 3, repeat: Infinity, ease: "easeInOut" }}
+            className={`flex flex-col items-center ${onToggleMusic ? 'cursor-pointer' : ''}`}
+            onClick={onToggleMusic}
           >
+            {/* Music Notes */}
+            {isPlayingMusic && !isRunning && (
+              <div className="absolute -top-12 -right-4 flex space-x-2">
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    animate={{ 
+                      y: [0, -20], 
+                      x: [0, (i - 1) * 10], 
+                      opacity: [0, 1, 0],
+                      scale: [0.5, 1, 0.5] 
+                    }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.4 }}
+                    className="text-pink-400"
+                  >
+                    <Music size={16} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+
             {/* 2D Boxy Body */}
             <div className="relative w-13 h-12 bg-white border-4 border-[#2D2327] rounded-sm shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] z-10 flex flex-col items-center justify-center">
               {/* FACE (Small Pixel Style) */}

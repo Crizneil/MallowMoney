@@ -1,11 +1,35 @@
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Rocket, Shield, Heart, ArrowRight, Wallet, X, Share, Smartphone, Monitor } from 'lucide-react';
-import { useState } from 'react';
 import PixelMallow from './PixelMallow';
+
+const TypingAnimation = ({ text, className }) => {
+  return (
+    <motion.div
+      className={`font-press-start text-[10px] md:text-[12px] text-mallow-light-text flex flex-wrap gap-x-[2px] ${className || 'justify-center mb-8'}`}
+    >
+      {Array.from(text).map((char, index) => (
+        <motion.span
+          key={index}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{
+            duration: 0.1,
+            delay: index * 0.05
+          }}
+        >
+          {char === ' ' ? '\u00A0' : char}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
 
 const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
-  
+  const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
+
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isInAppBrowser = /FBAN|FBAV|Instagram|Messenger|Pinterest|Snapchat|Line|WhatsApp/i.test(navigator.userAgent);
   const isAndroid = /Android/i.test(navigator.userAgent);
@@ -161,7 +185,7 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
             transition={{ delay: 0.2 }}
             className="text-xl md:text-2xl font-pixel text-mallow-light-text/70 mb-14 max-w-2xl mx-auto leading-none"
           >
-            Budgeting made fluffy.
+            Handle your money the malumanay way.
           </motion.p>
 
           <motion.div
@@ -190,7 +214,54 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
               {isInstalled ? 'OPEN WEB APP' : 'USE IN BROWSER'}
               <ArrowRight size={16} />
             </button>
-          </motion.div>
+          </motion.div>          {/* Meet the Dev Section */}
+          <section className="mt-32 w-full px-6 pb-24">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="max-w-4xl mx-auto px-8 py-16 bg-mallow-light-blue/20 backdrop-blur-xl rounded-[40px] border-2 border-white/50 shadow-2xl flex flex-col items-center relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-mallow-light-blue/10 to-transparent pointer-events-none" />
+
+              <div className="flex flex-col md:flex-row items-center gap-10 mb-12 relative z-10 w-full justify-center">
+                <div className="relative group shrink-0">
+                  <div className="absolute inset-0 bg-mallow-light-blue/30 blur-3xl rounded-full group-hover:bg-mallow-light-blue/40 transition-colors duration-500" />
+                  <motion.img
+                    src={isHoveringAvatar ? "/MallowMoney/dev-crizneil-waving.png" : "/MallowMoney/dev-crizneil.png"}
+                    alt="Dev Crizneil"
+                    onMouseEnter={() => setIsHoveringAvatar(true)}
+                    onMouseLeave={() => setIsHoveringAvatar(false)}
+                    className="w-36 h-36 relative z-10 drop-shadow-2xl cursor-pointer"
+                    style={{
+                      imageRendering: 'pixelated',
+                      mixBlendMode: 'darken'
+                    }}
+                  />
+                </div>
+
+                <div className="flex flex-col md:items-start text-center md:text-left pr-4">
+                  <TypingAnimation text="Hello, I'm Dev Crizneil!" className="justify-center md:justify-start mb-0" />
+                </div>
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 1.5, duration: 1 }}
+                className="space-y-8 text-center relative z-10"
+              >
+                <p className="font-pixel text-2xl md:text-3xl text-mallow-light-text font-bold leading-relaxed">
+                  I built this app called <span className="text-mallow-dark-blue drop-shadow-sm">MallowMoney</span> because I believe that managing your money should feel calm, not stressful.
+                </p>
+
+
+              </motion.div>
+            </motion.div>
+          </section>
+
         </div>
       </section>
 
@@ -206,12 +277,12 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
           <FeatureCard
             icon={<Shield className="text-[#5AB9C7]" />}
             title="TOTALLY SECURE"
-            desc="Ang data mo ay privacy mo. Walang spies, puro buddies lang."
+            desc="Ang data mo ay privacy mo."
           />
           <FeatureCard
             icon={<Wallet className="text-[#5AB9C7]" />}
-            title="SIMPLE KITA"
-            desc="Tingnan ang iyong yaman sa isang mabilis na sulyap."
+            title="SIMPLE OVERVIEW"
+            desc="Tingnan ang iyong pera sa isang mabilis na sulyap."
           />
         </div>
       </section>
