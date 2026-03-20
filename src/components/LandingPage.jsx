@@ -5,10 +5,14 @@ import PixelMallow from './PixelMallow';
 
 const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
+  
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Messenger|Pinterest|Snapchat|Line|WhatsApp/i.test(navigator.userAgent);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isChrome = /Chrome/i.test(navigator.userAgent) && /Google Inc/i.test(navigator.vendor);
 
   const handleDownloadClick = () => {
-    if (isIOS) {
+    if (isInAppBrowser || isIOS) {
       setShowInstallModal(true);
     } else if (isInstallable) {
       onInstall();
@@ -49,8 +53,21 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
               </div>
 
               <div className="space-y-6">
+                {/* In-App Browser Instructions */}
+                {isInAppBrowser && (
+                  <div className="flex items-start gap-4 p-4 bg-orange-500/10 rounded-2xl border-2 border-orange-500/20">
+                    <div className="p-2 bg-white rounded-xl shadow-sm">
+                      <Share size={20} className="text-orange-500" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm mb-1 text-orange-600">Open in Browser</h3>
+                      <p className="text-xs opacity-70 leading-relaxed">You're in an in-app browser. Tap the <strong>three dots</strong> or <strong>Share</strong> icon and select <strong>"Open in Browser"</strong> to install!</p>
+                    </div>
+                  </div>
+                )}
+
                 {/* iOS Instructions */}
-                {isIOS && (
+                {isIOS && !isInAppBrowser && (
                   <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
                     <div className="p-2 bg-white rounded-xl shadow-sm">
                       <Smartphone size={20} className="text-mallow-light-text" />
@@ -63,7 +80,7 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
                 )}
 
                 {/* Android / Chrome Instructions */}
-                {!isIOS && (
+                {!isIOS && !isInAppBrowser && (
                   <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl">
                     <div className="p-2 bg-white rounded-xl shadow-sm">
                       <Monitor size={20} className="text-mallow-light-text" />
@@ -71,6 +88,9 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
                     <div>
                       <h3 className="font-bold text-sm mb-1">Android / Desktop</h3>
                       <p className="text-xs opacity-70 leading-relaxed">Look for the <strong>Install Icon</strong> in your browser's address bar or menu.</p>
+                      {isAndroid && !isChrome && (
+                        <p className="mt-2 text-[10px] text-mallow-light-blue font-bold uppercase">💡 TIP: Use Google Chrome for the easiest install!</p>
+                      )}
                     </div>
                   </div>
                 )}
