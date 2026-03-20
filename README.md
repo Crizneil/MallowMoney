@@ -67,14 +67,6 @@ To keep your project organized, follow this simple workflow:
 
 ---
 
-## Sneak Peek
-
-| Landing Page (Refined) | Privacy Mode (Masked) |
-| :--- | :--- |
-| ![Landing Page](file:///C:/Users/ABC/.gemini/antigravity/brain/c8f7d468-f9c1-45a8-968b-10e97f4da4b9/landing_page_animation_1773963241566.png) | ![Privacy Mode](file:///C:/Users/ABC/.gemini/antigravity/brain/c8f7d468-f9c1-45a8-968b-10e97f4da4b9/dashboard_balance_hidden_1773962417170.png) |
-
----
-
 ## Privacy First
 All your data is stored **locally** in your browser's storage. No data is sent to external servers. Your money, your business.
 
