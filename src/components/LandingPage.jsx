@@ -12,11 +12,11 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
           <div className="relative h-24 mb-6 overflow-hidden w-full max-w-sm mx-auto flex items-center justify-center">
             {/* The Coin */}
             <motion.div
-              animate={{ 
+              animate={{
                 x: [-120, 120],
                 y: [0, -10, 0, -10, 0]
               }}
-              transition={{ 
+              transition={{
                 x: { duration: 3, repeat: Infinity, ease: "linear" },
                 y: { duration: 0.5, repeat: Infinity, ease: "easeInOut" }
               }}
@@ -29,13 +29,13 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
 
             {/* Mallow Chasing */}
             <motion.div
-              animate={{ 
+              animate={{
                 x: [-150, 90],
               }}
-              transition={{ 
-                duration: 3, 
-                repeat: Infinity, 
-                ease: "linear" 
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "linear"
               }}
               className="absolute z-10"
             >
@@ -59,7 +59,7 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
             transition={{ delay: 0.2 }}
             className="text-xl md:text-2xl font-pixel text-mallow-light-text/70 dark:text-white/70 mb-14 max-w-2xl mx-auto leading-none"
           >
-            Ang iyong pinaka-cute na ipon buddy. Stay clear, stay calm, and save more.
+            Budgeting made fluffy.
           </motion.p>
 
           <motion.div
@@ -94,17 +94,17 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
       <section className="py-24 px-6 relative w-full overflow-hidden">
         <div className="absolute inset-0 bg-mallow-light-blue/5 dark:bg-black/20 pointer-events-none" />
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 relative z-10">
-          <FeatureCard 
+          <FeatureCard
             icon={<Rocket className="text-[#5AB9C7]" />}
             title="SNAZZY LOGS"
             desc="Mabilis at masayang ilista ang iyong mga ginastos!"
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<Shield className="text-[#5AB9C7]" />}
             title="TOTALLY SECURE"
             desc="Ang data mo ay privacy mo. Walang spies, puro buddies lang."
           />
-          <FeatureCard 
+          <FeatureCard
             icon={<Wallet className="text-[#5AB9C7]" />}
             title="SIMPLE KITA"
             desc="Tingnan ang iyong yaman sa isang mabilis na sulyap."
@@ -115,8 +115,8 @@ const LandingPage = ({ onStart, onInstall, isInstallable, isInstalled }) => {
       {/* Footer */}
       <footer className="py-12 px-6 text-center opacity-40">
         <p className="font-pixel text-sm uppercase tracking-widest leading-loose">
-          MallowMoney v1.3 • Developed by Crizneil<br/>
-          Ang iyong stress-free ipon buddy! 👾
+          MallowMoney v1.3 2026• Developed by Crizneil<br />
+
         </p>
       </footer>
     </div>
