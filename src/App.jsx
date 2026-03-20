@@ -15,7 +15,7 @@ import { audioManager } from './utils/audioManager';
 import { useEffect } from 'react';
 
 function App() {
-  const [loadingApp, setLoadingApp] = useState(false);
+  const [loadingApp, setLoadingApp] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -62,7 +62,6 @@ function App() {
   if (loadingApp) {
     return <LoadingScreen onComplete={() => {
       setLoadingApp(false);
-      setShowLanding(false);
     }} />;
   }
 
@@ -71,7 +70,7 @@ function App() {
       <LandingPage 
         onStart={() => {
           sessionStorage.setItem('skipLanding', 'true');
-          setLoadingApp(true);
+          setShowLanding(false);
         }}
         onInstall={handleInstall}
         isInstallable={isInstallable}

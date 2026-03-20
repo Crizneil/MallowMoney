@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { audioManager } from '../utils/audioManager';
+import PixelMallow from './PixelMallow';
 
 const LoadingScreen = ({ onComplete }) => {
   const [textVisible, setTextVisible] = useState(false);
@@ -25,66 +26,40 @@ const LoadingScreen = ({ onComplete }) => {
 
   return (
     <div 
-      className="fixed inset-0 z-[100] bg-[#FFF9F0] flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[100] bg-[#E8F8FB] flex flex-col items-center justify-center overflow-hidden"
     >
       {/* ANIMATION AREA */}
       <div className="relative w-full h-40 flex items-center justify-center mb-12">
-        {/* Bouncing Coin */}
+        {/* The Coin */}
         <motion.div
-          animate={{ 
-            x: [-200, 200],
-            y: [0, -20, 0, -10, 0],
-            rotate: [0, 360]
+          animate={{
+            x: [-120, 120],
+            y: [0, -10, 0, -10, 0]
           }}
-          transition={{ 
-            x: { duration: 4, repeat: Infinity, ease: "linear" },
-            y: { duration: 0.6, repeat: Infinity },
-            rotate: { duration: 1, repeat: Infinity, ease: "linear" }
+          transition={{
+            x: { duration: 3, repeat: Infinity, ease: "linear" },
+            y: { duration: 0.5, repeat: Infinity, ease: "easeInOut" }
           }}
           className="absolute z-20"
         >
-          <div className="w-8 h-8 bg-yellow-400 border-4 border-[#2D2327] rounded-full flex items-center justify-center shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]">
-            <div className="w-2 h-4 bg-yellow-600/30 rounded-full" />
+          <div className="w-6 h-6 bg-yellow-400 border-2 border-[#2D2327] rounded-sm shadow-[2px_2px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center">
+            <div className="w-1.5 h-1.5 bg-white opacity-60" />
           </div>
         </motion.div>
 
         {/* Chasing Mallow */}
         <motion.div
-          animate={{ 
-            x: [-260, 140],
-            y: [0, -5, 0]
+          animate={{
+            x: [-150, 90],
           }}
-          transition={{ 
-            x: { duration: 4, repeat: Infinity, ease: "linear" },
-            y: { duration: 0.3, repeat: Infinity }
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear"
           }}
-          className="absolute z-10 flex flex-col items-center"
+          className="absolute z-10"
         >
-          {/* Boxy Body */}
-          <div className="w-14 h-12 bg-white border-4 border-[#2D2327] rounded-sm shadow-[4px_4px_0_0_rgba(0,0,0,0.1)] flex flex-col items-center justify-center">
-            <div className="flex space-x-4 mb-1">
-              <div className="w-3 h-4 bg-[#2D2327] relative">
-                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white" />
-              </div>
-              <div className="w-3 h-4 bg-[#2D2327] relative">
-                <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-white" />
-              </div>
-            </div>
-            <div className="w-3 h-1.5 bg-[#2D2327]" />
-          </div>
-          {/* Running Feet */}
-          <div className="flex space-x-6 -mt-1">
-            <motion.div 
-              animate={{ height: [4, 6, 4] }}
-              transition={{ duration: 0.2, repeat: Infinity }}
-              className="w-3 h-4 bg-white border-x-4 border-b-4 border-[#2D2327]" 
-            />
-            <motion.div 
-              animate={{ height: [6, 4, 6] }}
-              transition={{ duration: 0.2, repeat: Infinity }}
-              className="w-3 h-4 bg-white border-x-4 border-b-4 border-[#2D2327]" 
-            />
-          </div>
+          <PixelMallow variant="running" scale={1.2} theme="light" />
         </motion.div>
       </div>
 
