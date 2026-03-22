@@ -59,11 +59,19 @@ export default defineConfig({
     })
   ],
   build: {
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          'vendor-ui': ['framer-motion', 'lucide-react', 'recharts'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('firebase')) {
+              return 'vendor-firebase';
+            }
+            if (id.includes('framer-motion') || id.includes('recharts') || id.includes('lucide-react')) {
+              return 'vendor-ui';
+            }
+            return 'vendor-core';
+          }
         }
       }
     }
