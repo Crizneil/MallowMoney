@@ -58,7 +58,18 @@ body {
 
 @layer components {
   .glass-card {
-    @apply bg-mallow-light-glass dark:bg-space-glass backdrop-blur-md border border-mallow-light-border dark:border-space-border rounded-2xl transition-all duration-300;
+    @apply bg-mallow-light-glass dark:bg-space-glass border border-mallow-light-border dark:border-space-border rounded-2xl transition-all duration-300;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transform: translateZ(0);
+    will-change: transform, opacity;
+  }
+
+  @media (max-width: 640px) {
+    .glass-card {
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
   }
 }
 

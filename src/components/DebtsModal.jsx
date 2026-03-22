@@ -18,7 +18,7 @@ const DebtsModal = ({
 }) => {
   const [activeTab, setActiveTab] = useState('utang'); // 'utang' or 'subs'
   const [showAddForm, setShowAddForm] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name, type }
+  const [confirmAction, setConfirmAction] = useState(null); // { id, name, type, data }
 
   // Form States - Debt
   const [debtType, setDebtType] = useState('owe'); // 'owe' (you owe) or 'owed' (they owe you)
@@ -173,22 +173,41 @@ const DebtsModal = ({
                               </div>
                             </div>
                             
-                            {debt.status === 'active' && (
-                              <div className="flex space-x-2">
+                            <div className="flex space-x-2">
+                              {debt.status === 'active' && (
                                 <button 
-                                  onClick={() => handleSettleDebt(debt, debt.balance)}
-                                  className="flex-1 bg-mallow-light-pink text-white py-2 rounded-xl text-xs font-bold active:scale-95 transition-all"
+                                  onClick={() => {
+                                    audioManager.playSFX('click');
+                                    setConfirmAction({
+                                      id: debt.id,
+                                      name: debt.person,
+                                      type: 'settle',
+                                      data: debt
+                                    });
+                                  }}
+                                  className="flex-1 bg-mallow-light-pink text-white py-2 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center space-x-2"
                                 >
-                                  SETTLE ALL
+                                  <CheckCircle size={14} />
+                                  <span>SETTLE & CLEAR</span>
                                 </button>
+                              )}
+                              {debt.status === 'settled' && (
                                 <button 
-                                  onClick={() => { audioManager.playSFX('click'); setDeleteTarget({ id: debt.id, name: debt.person, type: 'debt' }); }}
-                                  className="p-2 text-red-500 bg-red-500/10 rounded-xl active:scale-95 transition-all"
+                                  onClick={() => {
+                                    audioManager.playSFX('click');
+                                    setConfirmAction({
+                                      id: debt.id,
+                                      name: debt.person,
+                                      type: 'delete_settled',
+                                      data: debt
+                                    });
+                                  }}
+                                  className="flex-1 bg-black/5 dark:bg-white/5 text-mallow-light-text/40 py-2 rounded-xl text-xs font-bold active:scale-95 transition-all"
                                 >
-                                  <Trash2 size={16} />
+                                  CLEAR FROM LIST
                                 </button>
-                              </div>
-                            )}
+                              )}
+                            </div>
                           </div>
                         ))
                       )}
@@ -231,18 +250,21 @@ const DebtsModal = ({
                             </div>
                             <div className="flex space-x-2">
                               <button 
-                                onClick={() => logSubPayment(sub)}
-                                className="flex-1 border-2 border-mallow-light-blue/30 text-mallow-light-blue py-2 rounded-xl text-xs font-bold hover:bg-mallow-light-blue/5 active:scale-95 transition-all"
+                                onClick={() => {
+                                  audioManager.playSFX('click');
+                                  setConfirmAction({
+                                    id: sub.id,
+                                    name: sub.name,
+                                    type: 'pay',
+                                    data: sub
+                                  });
+                                }}
+                                className="flex-1 bg-mallow-light-blue text-white py-2 rounded-xl text-xs font-bold active:scale-95 transition-all flex items-center justify-center space-x-2 shadow-sm"
                               >
-                                LOG PAYMENT
+                                <Repeat size={14} />
+                                <span>LOG & CLEAR</span>
                               </button>
-                                <button 
-                                  onClick={() => { audioManager.playSFX('click'); setDeleteTarget({ id: sub.id, name: sub.name, type: 'sub' }); }}
-                                  className="p-2 text-red-500 bg-red-500/10 rounded-xl active:scale-95 transition-all"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
+                            </div>
                             </div>
                           ))
                         )}
@@ -358,17 +380,32 @@ const DebtsModal = ({
         </div>
       )}
       <ConfirmModal
-        isOpen={!!deleteTarget}
-        onClose={() => setDeleteTarget(null)}
+        isOpen={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
         onConfirm={() => {
-          if (deleteTarget.type === 'debt') deleteDebt(deleteTarget.id);
-          else deleteSubscription(deleteTarget.id);
-          setDeleteTarget(null);
+          if (confirmAction.type === 'settle') {
+            handleSettleDebt(confirmAction.data, confirmAction.data.balance);
+            deleteDebt(confirmAction.id);
+          } else if (confirmAction.type === 'pay') {
+            logSubPayment(confirmAction.data);
+            deleteSubscription(confirmAction.id);
+          } else if (confirmAction.type === 'delete_settled') {
+            deleteDebt(confirmAction.id);
+          }
+          setConfirmAction(null);
         }}
-        title={`BURAHIN ANG ${deleteTarget?.type === 'debt' ? 'UTANG' : 'SUBS'}?`}
-        message={`Sigurado ka bang nais mong burahin ang record ni "${deleteTarget?.name}"?`}
-        danger={true}
-        confirmText="BURAHIN"
+        title={
+          confirmAction?.type === 'settle' ? 'SETTLE & BURAHIN?' :
+          confirmAction?.type === 'pay' ? 'LOG PAYMENT & BURAHIN?' :
+          'BURAHIN SA LISTAHAN?'
+        }
+        message={
+          confirmAction?.type === 'settle' ? `Sigurado ka bang nais mong i-settle at burahin ang utang ni "${confirmAction?.name}"?` :
+          confirmAction?.type === 'pay' ? `Sigurado ka bang nais mong i-log ang payment at burahin ang subscription na "${confirmAction?.name}"?` :
+          `Sigurado ka bang nais mong burahin ang record ni "${confirmAction?.name}"?`
+        }
+        danger={confirmAction?.type === 'delete_settled'}
+        confirmText="SIGE"
         cancelText="HINDI"
       />
     </AnimatePresence>

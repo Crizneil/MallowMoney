@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { db } from '../firebase-config';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, updateDoc } from 'firebase/firestore';
 
@@ -173,12 +173,14 @@ export const useFinanceData = (user) => {
   };
 
   const deleteDebt = async (id) => {
+    console.log("Attempting to delete debt:", id);
     if (!user) {
       setDebts(prev => prev.filter(d => d.id !== id));
       return;
     }
     try {
       await deleteDoc(doc(db, 'users', user.uid, 'debts', id));
+      console.log("Successfully deleted debt from Firebase:", id);
     } catch (e) {
       console.error("Error deleting debt: ", e);
     }
@@ -200,12 +202,14 @@ export const useFinanceData = (user) => {
   };
 
   const deleteSubscription = async (id) => {
+    console.log("Attempting to delete subscription:", id);
     if (!user) {
       setSubscriptions(prev => prev.filter(s => s.id !== id));
       return;
     }
     try {
       await deleteDoc(doc(db, 'users', user.uid, 'subscriptions', id));
+      console.log("Successfully deleted subscription from Firebase:", id);
     } catch (e) {
       console.error("Error deleting subscription: ", e);
     }
@@ -228,14 +232,20 @@ export const useFinanceData = (user) => {
     setCategories(prev => prev.filter(cat => cat.name.trim().toLowerCase() !== cleanName));
   };
 
-  const totalBalance = transactions.reduce((acc, t) => acc + Number(t.amount), 0);
+  const totalBalance = useMemo(() => 
+    transactions.reduce((acc, t) => acc + Number(t.amount), 0),
+    [transactions]
+  );
 
-  const accountsWithBalances = accounts.map(acc => ({
-    ...acc,
-    balance: transactions
-      .filter(t => t.accountId === acc.id)
-      .reduce((sum, t) => sum + Number(t.amount), 0)
-  }));
+  const accountsWithBalances = useMemo(() => 
+    accounts.map(acc => ({
+      ...acc,
+      balance: transactions
+        .filter(t => t.accountId === acc.id)
+        .reduce((sum, t) => sum + Number(t.amount), 0)
+    })),
+    [accounts, transactions]
+  );
 
   return { 
     transactions, 

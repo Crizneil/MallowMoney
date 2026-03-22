@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 // SW registration is handled in main.jsx via virtual:pwa-register
 import { 
   Plus, Wallet, TrendingUp, TrendingDown, Sun, Moon, Eye, EyeOff, 
@@ -26,6 +26,7 @@ import { useTheme } from './hooks/useTheme';
 import { audioManager } from './utils/audioManager';
 import DebtsModal from './components/DebtsModal';
 import ConfirmModal from './components/ConfirmModal';
+import FloatingActionButton from './components/FloatingActionButton';
 
 function App() {
   const [loadingApp, setLoadingApp] = useState(true);
@@ -33,7 +34,6 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('guestMode') === 'true');
-  const [isFabOpen, setIsFabOpen] = useState(false);
 
   // Authentication State Observer
   useEffect(() => {
@@ -182,7 +182,6 @@ function App() {
   // Auth Functions
   const login = async () => {
     try {
-      if (isFabOpen) setIsFabOpen(false);
       await signInWithPopup(auth, provider);
       sessionStorage.removeItem('guestMode');
       sessionStorage.setItem('skipLanding', 'true');
@@ -203,23 +202,29 @@ function App() {
   const handleLogout = async () => {
     try {
       if (user) await signOut(auth);
+      setLoadingApp(true); // Trigger loading screen after logout
       sessionStorage.clear(); // Clear all session flags
       setIsGuest(false);
-      setShowLanding(true);
+      setShowLanding(false); // Go directly to welcome/login screen
     } catch (error) {
       console.error('Error signing out', error);
     }
   };
 
   // Analytics
-  const income = transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + Number(t.amount), 0);
-  const expenses = transactions.filter(t => t.amount < 0).reduce((acc, t) => acc + Math.abs(Number(t.amount)), 0);
-  const expensesByCategory = categories.map(cat => {
-    const total = transactions
-      .filter(t => t.amount < 0 && t.category === cat.name)
-      .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
-    return { name: cat.name, value: total };
-  }).filter(data => data.value > 0).sort((a, b) => b.value - a.value);
+  const { income, expenses, expensesByCategory } = useMemo(() => {
+    const inc = transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + Number(t.amount), 0);
+    const exp = transactions.filter(t => t.amount < 0).reduce((acc, t) => acc + Math.abs(Number(t.amount)), 0);
+    
+    const expCat = categories.map(cat => {
+      const total = transactions
+        .filter(t => t.amount < 0 && t.category === cat.name)
+        .reduce((sum, t) => sum + Math.abs(Number(t.amount)), 0);
+      return { name: cat.name, value: total };
+    }).filter(data => data.value > 0).sort((a, b) => b.value - a.value);
+
+    return { income: inc, expenses: exp, expensesByCategory: expCat };
+  }, [transactions, categories]);
 
   const PIE_COLORS = ['#FFB3C6', '#7DCED9', '#5AB9C7', '#E63946', '#0077B6', '#F97316', '#2D2327'];
 
@@ -267,9 +272,9 @@ function App() {
           >
             <motion.div className="glass-card p-8 md:p-10 text-center max-w-md w-full border-t-4 border-mallow-light-pink shadow-2xl relative">
               <div className="relative h-28 w-full flex items-center justify-center mb-6 mt-2 mx-auto pointer-events-none">
-                 <PixelMallow variant="saving" scale={0.9} theme={theme} />
+                 <PixelMallow variant="welcome" scale={0.9} theme={theme} />
               </div>
-              <h2 className="text-xl md:text-2xl font-press-start mb-4 leading-loose text-center tracking-tighter">WELCOME</h2>
+              <h2 className="text-xl md:text-2xl font-press-start mb-4 leading-loose text-center tracking-tighter text-mallow-light-text dark:text-[#7DCED9]">WELCOME</h2>
               <p className="font-pixel text-lg opacity-60 mb-10 leading-relaxed">Choose how you want to use MallowMoney:</p>
               
               <div className="space-y-4">
@@ -454,59 +459,18 @@ function App() {
               </div>
             </main>
 
-            <AnimatePresence>
-              {isFabOpen && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-30 bg-black/5 dark:bg-black/40 backdrop-blur-[2px]"
-                  onClick={() => setIsFabOpen(false)}
-                />
-              )}
-            </AnimatePresence>
-
             <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-[#1a1c24]/90 backdrop-blur-xl border-t-2 border-black/5 dark:border-white/5 pb-safe">
               <div className="max-w-md mx-auto relative flex items-center justify-between px-6 h-16">
                 <div className="flex items-center space-x-1">
                   <button onClick={() => { audioManager.playSFX('click'); setIsCalcOpen(true); }} className="p-3 active:scale-90 transition-transform text-mallow-light-text dark:text-gray-400"><Calculator size={22} /></button>
                   <button onClick={() => { audioManager.playSFX('click'); setIsConverterOpen(true); }} className="p-3 active:scale-90 transition-transform text-mallow-light-text dark:text-gray-400"><ArrowLeftRight size={22} /></button>
                 </div>
-                
-                <div className="relative flex flex-col items-center -mt-12">
-                  <AnimatePresence>
-                    {isFabOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 30, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.8 }}
-                        className="absolute bottom-full mb-6 flex flex-col items-center space-y-4"
-                      >
-                        <div className="flex items-center space-x-3 w-40 justify-end">
-                          <span className="font-pixel text-[12px] uppercase bg-white dark:bg-black px-3 py-2 rounded-xl shadow-lg font-bold">Kategorya</span>
-                          <button onClick={() => { setIsCategoryModalOpen(true); setIsFabOpen(false); audioManager.playSFX('click'); }} className="w-14 h-14 bg-white dark:bg-[#1a1c24] rounded-full shadow-xl flex items-center justify-center border-2 border-[#7DCED9]"><Package size={22} className="text-[#5AB9C7]" /></button>
-                        </div>
-                        <div className="flex items-center space-x-3 w-40 justify-end">
-                          <span className="font-pixel text-[12px] uppercase bg-white dark:bg-black px-3 py-2 rounded-xl shadow-lg font-bold">Banko</span>
-                          <button onClick={() => { setIsAccountModalOpen(true); setIsFabOpen(false); audioManager.playSFX('click'); }} className="w-14 h-14 bg-white dark:bg-[#1a1c24] rounded-full shadow-xl flex items-center justify-center border-2 border-mallow-light-blue"><Wallet size={22} className="text-mallow-light-blue" /></button>
-                        </div>
-                        <div className="flex items-center space-x-3 w-40 justify-end">
-                          <span className="font-pixel text-[12px] uppercase bg-white dark:bg-black px-3 py-2 rounded-xl shadow-lg font-bold">Record</span>
-                          <button onClick={() => { setIsModalOpen(true); setIsFabOpen(false); audioManager.playSFX('click'); }} className="w-14 h-14 bg-white dark:bg-[#1a1c24] rounded-full shadow-xl flex items-center justify-center border-2 border-mallow-light-pink"><TrendingUp size={22} className="text-mallow-light-pink" /></button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => { audioManager.playSFX('click'); setIsFabOpen(!isFabOpen); }}
-                    className={`w-16 h-16 text-white dark:text-space-bg rounded-2xl flex items-center justify-center border-4 border-mallow-light-bg dark:border-space-bg ${isFabOpen ? 'bg-[#2D2327] dark:bg-white' : 'bg-gradient-to-tr from-mallow-light-pink to-mallow-light-blue dark:from-white dark:to-white'}`}
-                  >
-                    <motion.div animate={{ rotate: isFabOpen ? 45 : 0 }}><Plus size={32} /></motion.div>
-                  </motion.button>
-                </div>
+                <FloatingActionButton 
+                  setIsCategoryModalOpen={setIsCategoryModalOpen}
+                  setIsAccountModalOpen={setIsAccountModalOpen}
+                  setIsModalOpen={setIsModalOpen}
+                />
 
                 <div className="flex items-center space-x-1">
                   <button onClick={() => { audioManager.playSFX('click'); setIsDebtsOpen(true); }} className="p-3 text-mallow-light-text dark:text-gray-400"><HandCoins size={22} /></button>
@@ -525,7 +489,18 @@ function App() {
       <CalculatorModal isOpen={isCalcOpen} onClose={() => setIsCalcOpen(false)} />
       <ConverterModal isOpen={isConverterOpen} onClose={() => setIsConverterOpen(false)} />
       <DebtsModal isOpen={isDebtsOpen} onClose={() => setIsDebtsOpen(false)} debts={debts} subscriptions={subscriptions} addDebt={addDebt} updateDebt={updateDebt} deleteDebt={deleteDebt} addSubscription={addSubscription} deleteSubscription={deleteSubscription} addTransaction={addTransaction} />
-      <ConfirmModal isOpen={isLogoutConfirmOpen} onClose={() => setIsLogoutConfirmOpen(false)} onConfirm={handleLogout} title="LOG OUT / EXIT" message="Sigurado ka bang nais mong lumabas? Mawawala ang session mo pero ligtas ang iyong data sa Cloud." confirmText="LALABAS NA" cancelText="TEKA LANG" />
+      <ConfirmModal 
+        isOpen={isLogoutConfirmOpen} 
+        onClose={() => setIsLogoutConfirmOpen(false)} 
+        onConfirm={handleLogout} 
+        title="LOG OUT / EXIT" 
+        message={isGuest 
+          ? "Sigurado ka bang nais mong lumabas? Ang data mo ay naka-save lang sa device na ito. Kapag na-delete ang app, mawawala din ang iyong progress."
+          : "Sigurado ka bang nais mong lumabas? Mawawala ang session mo pero ligtas ang iyong data sa Cloud."
+        } 
+        confirmText="SIGE" 
+        cancelText="HINDI" 
+      />
     </div>
   );
 }

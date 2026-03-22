@@ -7,7 +7,7 @@ import { audioManager } from '../utils/audioManager';
 const TypingAnimation = ({ text, className }) => {
   return (
     <motion.div
-      className={`font-press-start text-[10px] md:text-[12px] text-black flex flex-wrap gap-x-[2px] ${className || 'justify-center mb-8'}`}
+      className={`font-press-start text-[10px] md:text-[12px] text-black dark:text-white/80 flex flex-wrap gap-x-[2px] ${className || 'justify-center mb-8'}`}
     >
       {Array.from(text).map((char, index) => (
         <motion.span
@@ -37,7 +37,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E8F8FB] to-white transition-colors duration-500 overflow-x-hidden flex flex-col items-center relative py-12">
+    <div className="min-h-screen bg-gradient-to-b from-[#E8F8FB] to-white dark:from-space-bg dark:to-[#0B0E14] transition-colors duration-500 overflow-x-hidden flex flex-col items-center relative py-12">
       <section className="relative w-full max-w-4xl mx-auto px-6 flex flex-col items-center justify-center min-h-[45vh]">
         <div className="text-center w-full">
           <div className="relative h-24 mb-6 overflow-hidden w-full max-w-sm mx-auto flex items-center justify-center">
@@ -73,7 +73,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl font-pixel text-black mb-12 max-w-2xl mx-auto leading-none opacity-60"
+            className="text-lg md:text-xl font-pixel text-black dark:text-white mb-12 max-w-2xl mx-auto leading-none opacity-60 dark:opacity-40"
           >
             Handle your money the malumanay way.
           </motion.p>
@@ -86,7 +86,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-white/80 backdrop-blur-md rounded-[40px] p-8 md:p-12 border-4 border-mallow-light-blue shadow-xl flex flex-col items-center"
+          className="bg-white/80 dark:bg-space-card/80 backdrop-blur-md rounded-[40px] p-8 md:p-12 border-4 border-mallow-light-blue dark:border-white/10 shadow-xl flex flex-col items-center"
         >
           <div className="flex flex-col md:flex-row items-center gap-8 mb-8">
             <div 
@@ -105,7 +105,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
             </div>
             <div className="flex flex-col md:items-start text-center md:text-left">
               <TypingAnimation text="Hello, I'm Dev Crizneil!" className="justify-center md:justify-start mb-4" />
-              <p className="font-pixel text-lg md:text-xl text-black leading-relaxed">
+              <p className="font-pixel text-lg md:text-xl text-black dark:text-white leading-relaxed">
                 I built <span className="text-mallow-light-blue font-black">MallowMoney</span> because I believe that managing your money should feel calm and pixel-perfect.
               </p>
             </div>
@@ -137,7 +137,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
             )}
 
             {isIOS && !isInstalled && (
-              <p className="mt-4 font-pixel text-[10px] text-mallow-light-text opacity-60 text-center uppercase tracking-widest leading-relaxed">
+              <p className="mt-4 font-pixel text-[10px] text-mallow-light-text dark:text-white/60 opacity-60 text-center uppercase tracking-widest leading-relaxed">
                 iOS (Safari): I-tap ang <Share size={12} className="inline mx-1" /> at piliin ang <br/> **"Add to Home Screen"**
               </p>
             )}
@@ -146,7 +146,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
       </section>
 
       <footer className="py-8 px-6 text-center">
-        <p className="font-pixel text-sm uppercase tracking-widest text-black opacity-30">
+        <p className="font-pixel text-sm uppercase tracking-widest text-black dark:text-white opacity-30 dark:opacity-20">
           MallowMoney v1.4 2026 • Developed by Crizneil
         </p>
       </footer>

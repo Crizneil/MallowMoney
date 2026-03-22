@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Trash2 } from 'lucide-react';
@@ -94,4 +94,4 @@ const TransactionList = ({ transactions, onDelete, showBalance }) => {
   );
 };
 
-export default TransactionList;
+export default React.memo(TransactionList);

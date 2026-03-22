@@ -30,13 +30,13 @@ export default defineConfig({
         screenshots: [
           {
             src: 'pwa-512x512.png',
-            sizes: '400x400',
+            sizes: '512x512',
             type: 'image/png',
             form_factor: 'wide'
           },
           {
             src: 'pwa-192x192.png',
-            sizes: '380x380',
+            sizes: '192x192',
             type: 'image/png',
             form_factor: 'narrow'
           }
@@ -44,15 +44,15 @@ export default defineConfig({
         icons: [
           {
             src: 'pwa-192x192.png',
-            sizes: '380x380',
+            sizes: '192x192',
             type: 'image/png',
-            purpose: 'any'
+            purpose: 'any maskable'
           },
           {
             src: 'pwa-512x512.png',
-            sizes: '400x400',
+            sizes: '512x512',
             type: 'image/png',
-            purpose: 'any'
+            purpose: 'any maskable'
           }
         ]
       }
