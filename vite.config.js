@@ -22,7 +22,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         scope: '/MallowMoney/',
-        start_url: '/MallowMoney/',
+        start_url: '/MallowMoney/?mode=standalone',
         icons: [
           {
             src: 'pwa-192x192.png',

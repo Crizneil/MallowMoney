@@ -22,7 +22,6 @@ import CalculatorModal from './components/CalculatorModal';
 import ConverterModal from './components/ConverterModal';
 import { useFinanceData } from './hooks/useFinanceData';
 import { useTheme } from './hooks/useTheme';
-import { usePWAInstall } from './hooks/usePWAInstall';
 import { audioManager } from './utils/audioManager';
 import DebtsModal from './components/DebtsModal';
 import ConfirmModal from './components/ConfirmModal';
@@ -57,19 +56,60 @@ function App() {
 
   // Landing Page Skip Logic
   const [showLanding, setShowLanding] = useState(() => {
-    // ONLY auto-skip if we are running as an installed PWA
+    // Robust standalone detection across platforms
     const isStandalone = 
       window.matchMedia('(display-mode: standalone)').matches || 
       window.navigator.standalone || 
-      (typeof navigator !== 'undefined' && navigator.standalone);
+      navigator.standalone ||
+      document.referrer.includes('android-app://') || // For Android TWA
+      window.location.search.includes('mode=standalone'); // Fallback param
       
+    console.log('MallowMoney Display Mode:', isStandalone ? 'Standalone' : 'Browser');
+    
     if (isStandalone) return false;
     
     // For browser, always show landing first unless they just came from it
     return !sessionStorage.getItem('skipLanding');
   });
 
-  const { isInstallable, isInstalled, handleInstall } = usePWAInstall();
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(() => 
+    window.matchMedia('(display-mode: standalone)').matches || 
+    window.navigator.standalone || 
+    navigator.standalone
+  );
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log('PWA Install Prompt Ready');
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('appinstalled', () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (audioManager) audioManager.playSFX('click');
+    if (!deferredPrompt) {
+      console.log('Install prompt not deferred yet');
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
+
   const { theme, toggleTheme } = useTheme();
   
   const { 
@@ -170,7 +210,7 @@ function App() {
             onStart={startAsGuest} 
             onLogin={login}
             onInstall={handleInstall}
-            isInstallable={isInstallable}
+            isInstallable={!!deferredPrompt}
             isInstalled={isInstalled}
           />
         ) : (!user && !isGuest) ? (
