@@ -3,10 +3,11 @@ import {
   X, Utensils, Car, ShoppingBag, Heart, TrendingUp, Coffee, Plane, Gift, Home, 
   Smartphone, Briefcase, Music, Film, Gamepad2, Pizza, Beer, Dumbbell, 
   BookOpen, Camera, Zap, Shield, HelpCircle, Package, Star, HeartPulse, 
-  Bus, GraduationCap, Wrench, PiggyBank, CreditCard
+  Bus, GraduationCap, Wrench, PiggyBank, CreditCard, Trash2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { audioManager } from '../utils/audioManager';
+import ConfirmModal from './ConfirmModal';
 
 const ICONS = [
   { name: 'Utensils', component: Utensils },
@@ -42,9 +43,10 @@ const ICONS = [
   { name: 'HelpCircle', component: HelpCircle }
 ];
 
-const CategoryModal = ({ isOpen, onClose, onAdd }) => {
+const CategoryModal = ({ isOpen, onClose, onAdd, categories = [], transactions = [], onDelete }) => {
   const [name, setName] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('Utensils');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -69,10 +71,10 @@ const CategoryModal = ({ isOpen, onClose, onAdd }) => {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-sm bg-mallow-light-bg dark:bg-space-bg p-6 rounded-3xl shadow-2xl border-2 border-mallow-light-blue dark:border-white/10"
+            className="relative w-full max-w-sm max-h-[90vh] overflow-y-auto custom-scrollbar bg-mallow-light-bg dark:bg-space-bg p-6 rounded-3xl shadow-2xl border-2 border-mallow-light-blue dark:border-white/10"
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-lg font-press-start text-mallow-light-text dark:text-white">New Category</h2>
+              <h2 className="text-lg font-press-start text-mallow-light-text dark:text-white">Kategorya</h2>
               <button 
                 onClick={() => {
                   audioManager.playSFX('click');
@@ -83,6 +85,36 @@ const CategoryModal = ({ isOpen, onClose, onAdd }) => {
                 <X size={20} />
               </button>
             </div>
+
+            {/* Custom Categories List */}
+            {categories.length > 0 && (
+              <div className="mb-8 border-b-2 border-black/5 dark:border-white/5 pb-6">
+                <h3 className="font-pixel text-[12px] opacity-40 mb-3 text-center uppercase font-bold tracking-tight">Ating Kategorya</h3>
+                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                  {categories.map(cat => {
+                    const isUsed = transactions.some(t => t.category === cat.name);
+                    return (
+                      <div key={cat.name} className="flex justify-between items-center bg-black/5 dark:bg-white/5 p-2 rounded-xl border-2 border-transparent hover:border-black/5 dark:hover:border-white/5 transition-all">
+                        <p className="font-bold text-[11px] truncate opacity-80 pl-1">{cat.name}</p>
+                        {!isUsed && (
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              audioManager.playSFX('click');
+                              setDeleteTarget(cat.name);
+                            }}
+                            className="text-red-500 p-1.5 hover:bg-red-500/10 rounded-lg active:scale-95 transition-all shrink-0"
+                            title="Delete unused category"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -125,9 +157,23 @@ const CategoryModal = ({ isOpen, onClose, onAdd }) => {
                 DAGDAG KATEGORYA
               </button>
             </form>
+
           </motion.div>
         </div>
       )}
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          onDelete(deleteTarget);
+          setDeleteTarget(null);
+        }}
+        title="BURAHIN ANG KATEGORYA?"
+        message={`Sigurado ka bang nais mong burahin ang "${deleteTarget}"? Hindi ito mababawi.`}
+        danger={true}
+        confirmText="BURAHIN"
+        cancelText="HINDI"
+      />
     </AnimatePresence>
   );
 };

@@ -9,29 +9,46 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'script', // Explicitly inject registration script
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module' // Use module type for better dev support
       },
-      includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+      includeAssets: ['favicon.png', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'MallowMoney',
         short_name: 'MallowMoney',
         description: 'Personal Finance Tracker with Pixel Mallow',
-        theme_color: '#0B0E14',
-        background_color: '#0B0E14',
+        theme_color: '#E8F8FB',
+        background_color: '#E8F8FB',
         display: 'standalone',
+        orientation: 'portrait',
+        scope: '/MallowMoney/',
+        start_url: '/MallowMoney/',
         icons: [
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       }

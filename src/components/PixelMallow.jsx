@@ -52,14 +52,16 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
   }, []);
 
   const isRunning = variant === 'running';
+  const isSaving = variant === 'saving';
+  const isTransparent = isRunning || isSaving;
 
   return (
     <div 
-      className={`relative ${isRunning ? 'w-24 h-24 overflow-visible' : 'w-full h-[180px] overflow-hidden rounded-[1.5rem] border-4 border-[#2D2327]/10 dark:border-white/5 bg-[#AEE2FF] dark:bg-[#06080D] shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]'}`}
-      style={isRunning ? { transform: `scale(${scale})` } : {}}
+      className={`relative ${isTransparent ? 'w-24 h-24 overflow-visible' : 'w-full h-[180px] overflow-hidden rounded-[1.5rem] border-4 border-[#2D2327]/10 dark:border-white/5 bg-[#AEE2FF] dark:bg-[#06080D] shadow-[8px_8px_0_0_rgba(0,0,0,0.1)]'}`}
+      style={isTransparent ? { transform: `scale(${scale})` } : {}}
     >
       {/* BEACH SCENE (Light Mode) */}
-      {theme === 'light' && !isRunning && (
+      {theme === 'light' && !isTransparent && (
         <div className="absolute inset-0">
           <div className="absolute inset-x-0 bottom-12 h-10 bg-[#0077B6]/20" />
           {/* Pixel Waves */}
@@ -112,7 +114,7 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
       )}
 
       {/* FOREST SCENE (Dark Mode) */}
-      {theme === 'dark' && !isRunning && (
+      {theme === 'dark' && !isTransparent && (
         <div className="absolute inset-0">
           <div className="absolute inset-x-0 bottom-0 h-16 bg-[#140D06]" />
           
@@ -167,10 +169,10 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
       )}
 
       {/* CHARACTER & TEXT LAYER */}
-      <div className={`absolute inset-0 flex items-center ${isRunning ? 'justify-center' : 'justify-end px-10 md:px-14'}`}>
-        <div className={`flex items-center ${isRunning ? '' : 'space-x-6'}`}>
+      <div className={`absolute inset-0 flex items-center ${isTransparent ? 'justify-center' : 'justify-end px-10 md:px-14'}`}>
+        <div className={`flex items-center ${isTransparent ? '' : 'space-x-6'}`}>
           {/* Landscape Speech Bubble */}
-          {!isRunning && (
+          {!isTransparent && (
             <AnimatePresence>
             {showNote && (
               <motion.div
@@ -191,19 +193,19 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
 
           {/* Small 2D Pixel Mallow */}
           <motion.div
-            animate={isRunning ? { 
-              y: [0, -4, 0],
-              x: [-2, 2, -2]
+            animate={isTransparent ? { 
+              y: isSaving ? [0, -2, 0] : [0, -4, 0],
+              x: isSaving ? 0 : [-2, 2, -2]
             } : { 
               y: [0, 2, 0],
               scale: mallowScale
             }}
-            transition={isRunning ? { duration: 0.3, repeat: Infinity, ease: "linear" } : { duration: isPlayingMusic ? 0.5 : 3, repeat: Infinity, ease: "easeInOut" }}
-            className={`flex flex-col items-center ${onToggleMusic ? 'cursor-pointer' : ''}`}
+            transition={isTransparent ? { duration: isSaving ? 2 : 0.3, repeat: Infinity, ease: "easeInOut" } : { duration: isPlayingMusic ? 0.5 : 3, repeat: Infinity, ease: "easeInOut" }}
+            className={`flex flex-col items-center ${onToggleMusic ? 'cursor-pointer' : ''} ${isSaving ? '-ml-8' : ''}`}
             onClick={onToggleMusic}
           >
             {/* Music Notes */}
-            {isPlayingMusic && !isRunning && (
+            {isPlayingMusic && !isTransparent && (
               <div className="absolute -top-12 -right-4 flex space-x-2">
                 {[...Array(3)].map((_, i) => (
                   <motion.div
@@ -273,8 +275,35 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
             </div>
             
             {/* Shadow */}
-            {!isRunning && <div className="w-14 h-2 bg-black/10 mt-1 rounded-full blur-[1px]" />}
+            {!isTransparent && <div className="w-14 h-2 bg-black/10 mt-1 rounded-full blur-[1px]" />}
           </motion.div>
+
+          {/* Saving Box Animation */}
+          {isSaving && (
+            <div className="absolute -bottom-2 -right-14 z-20">
+              <div className="w-12 h-10 bg-[#FFB3C6] dark:bg-[#7DCED9] border-4 border-[#2D2327] rounded-sm relative shadow-[4px_4px_0_0_rgba(0,0,0,0.1)]">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-1 bg-[#2D2327]" />
+                  {/* Drop animation */}
+                  <motion.div
+                    animate={{ y: [-40, 5], opacity: [0, 1, 1, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeIn" }}
+                    className="absolute -top-10 left-1/2 -translate-x-1/2 z-30"
+                  >
+                    <div className="w-4 h-4 bg-yellow-400 border-2 border-[#2D2327] rounded-sm shadow-[1px_1px_0_0_rgba(0,0,0,0.1)] flex items-center justify-center">
+                      <div className="w-1 h-1 bg-white opacity-60" />
+                    </div>
+                  </motion.div>
+                  {/* Plus sign decal */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-40 mt-1">
+                    <div className="w-3 h-3 text-[#2D2327]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="square">
+                        <path d="M12 5v14M5 12h14"/>
+                      </svg>
+                    </div>
+                  </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

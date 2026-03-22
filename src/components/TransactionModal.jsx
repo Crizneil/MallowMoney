@@ -83,7 +83,7 @@ const TransactionModal = ({ isOpen, onClose, onAdd, accounts = [], categories = 
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-pixel text-lg opacity-40 mb-1">Magkano?</label>
+                  <label className="block font-pixel text-lg opacity-40 mb-1 font-bold tracking-tight">Magkano?</label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-lg opacity-40">₱</span>
                     <input
@@ -98,7 +98,7 @@ const TransactionModal = ({ isOpen, onClose, onAdd, accounts = [], categories = 
                 </div>
 
                 <div>
-                  <label className="block font-pixel text-lg opacity-40 mb-1">Account</label>
+                  <label className="block font-pixel text-lg opacity-40 mb-1 font-bold tracking-tight">Account</label>
                   <select
                     value={accountId}
                     onChange={(e) => setAccountId(e.target.value)}
@@ -114,7 +114,7 @@ const TransactionModal = ({ isOpen, onClose, onAdd, accounts = [], categories = 
               </div>
 
               <div>
-                <label className="block font-pixel text-lg opacity-40 mb-1">Kategorya</label>
+                <label className="block font-pixel text-lg opacity-40 mb-1 font-bold tracking-tight">Kategorya</label>
                 <div className="grid grid-cols-2 gap-4">
                   <select
                     value={category}

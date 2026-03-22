@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Trash2 } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
+import { audioManager } from '../utils/audioManager';
 
 const TransactionList = ({ transactions, onDelete, showBalance }) => {
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
   const getIcon = (categoryName) => {
     // In a real app, we'd store the icon name in the transaction. 
     // For now, let's try to match by common category names or default to 'Package'
@@ -60,7 +65,7 @@ const TransactionList = ({ transactions, onDelete, showBalance }) => {
                     {t.amount >= 0 ? '+' : ''}₱{showBalance ? Math.abs(t.amount).toLocaleString() : '••••'}
                   </p>
                   <button
-                    onClick={() => onDelete(t.id)}
+                    onClick={() => { audioManager.playSFX('click'); setDeleteTarget(t.id); }}
                     className="p-2 opacity-0 group-hover:opacity-100 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                   >
                     <Trash2 size={18} />
@@ -71,6 +76,20 @@ const TransactionList = ({ transactions, onDelete, showBalance }) => {
           </div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          onDelete(deleteTarget);
+          setDeleteTarget(null);
+        }}
+        title="BURAHIN ANG RECORD?"
+        message="Hindi na mababalik ang record na ito kapag binura. Sigurado ka ba?"
+        danger={true}
+        confirmText="BURAHIN"
+        cancelText="HINDI"
+      />
     </div>
   );
 };
