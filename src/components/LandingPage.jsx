@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Smartphone, Share, Cloud, User } from 'lucide-react';
+import { Download, Smartphone, Share } from 'lucide-react';
 import PixelMallow from './PixelMallow';
 import { audioManager } from '../utils/audioManager';
 
@@ -141,30 +141,6 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstalled, isInstallable, 
                 iOS (Safari): I-tap ang <Share size={12} className="inline mx-1" /> at piliin ang <br/> **"Add to Home Screen"**
               </p>
             )}
-
-            <div className="w-full flex items-center gap-4 my-8">
-              <div className="h-[1px] flex-1 bg-mallow-light-blue/20" />
-              <span className="font-pixel text-[12px] opacity-30 uppercase tracking-widest">OR</span>
-              <div className="h-[1px] flex-1 bg-mallow-light-blue/20" />
-            </div>
-
-            <div className="flex flex-col gap-4 w-full">
-              <button
-                onClick={() => { if (audioManager) audioManager.playSFX('click'); onLogin(); }}
-                className="w-full py-5 bg-white text-mallow-light-blue font-press-start text-[10px] rounded-2xl border-2 border-mallow-light-blue/30 hover:bg-mallow-light-blue/5 active:scale-95 transition-all flex justify-center items-center gap-3 uppercase"
-              >
-                <Cloud size={18} />
-                LOGIN TO SYNC
-              </button>
-              
-              <button
-                onClick={() => { if (audioManager) audioManager.playSFX('click'); onStart(); }}
-                className="w-full py-5 bg-black/5 text-black/60 font-press-start text-[10px] rounded-2xl hover:bg-black/10 active:scale-95 transition-all flex justify-center items-center gap-3 uppercase"
-              >
-                <User size={18} />
-                USE AS GUEST (BROWSER)
-              </button>
-            </div>
           </div>
         </motion.div>
       </section>

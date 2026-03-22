@@ -30,43 +30,29 @@ export default defineConfig({
         screenshots: [
           {
             src: 'pwa-512x512.png',
-            sizes: '512x512',
+            sizes: '400x400',
             type: 'image/png',
-            form_factor: 'wide',
-            label: 'MallowMoney Dashboard'
+            form_factor: 'wide'
           },
           {
             src: 'pwa-192x192.png',
-            sizes: '192x192',
+            sizes: '380x380',
             type: 'image/png',
-            form_factor: 'narrow',
-            label: 'MallowMoney Mobile'
+            form_factor: 'narrow'
           }
         ],
         icons: [
           {
             src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
+            sizes: '380x380',
             type: 'image/png',
             purpose: 'any'
           },
           {
             src: 'pwa-512x512.png',
-            sizes: '512x512',
+            sizes: '400x400',
             type: 'image/png',
-            purpose: 'maskable'
+            purpose: 'any'
           }
         ]
       }
