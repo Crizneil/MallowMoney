@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./mallow-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>mallowmoney</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <script>
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+        console.log('PWA: Global beforeinstallprompt captured');
+      });
+    </script>
+    <script type="module" crossorigin src="/MallowMoney/assets/index-ZQ2KUdAo.js"></script>
+    <link rel="modulepreload" crossorigin href="/MallowMoney/assets/rolldown-runtime-COnpUsM8.js">
+    <link rel="modulepreload" crossorigin href="/MallowMoney/assets/vendor-core-Cm0JWcbh.js">
+    <link rel="modulepreload" crossorigin href="/MallowMoney/assets/vendor-firebase-c2KCSltq.js">
+    <link rel="modulepreload" crossorigin href="/MallowMoney/assets/vendor-ui-CkjFHpeg.js">
+    <link rel="stylesheet" crossorigin href="/MallowMoney/assets/index-CG-8hvJQ.css">
+  <link rel="manifest" href="/MallowMoney/manifest.json"><script id="vite-plugin-pwa:inline-sw">if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/MallowMoney/sw.js', { scope: '/MallowMoney/' })})}</script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
