@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+// SW registration is handled in main.jsx via virtual:pwa-register
 import { 
   Plus, Wallet, TrendingUp, TrendingDown, Sun, Moon, Eye, EyeOff, 
   Cloud, CloudOff, LogOut, Package, Trash2, Calculator, 
@@ -61,15 +62,12 @@ function App() {
       window.matchMedia('(display-mode: standalone)').matches || 
       window.navigator.standalone || 
       navigator.standalone ||
-      document.referrer.includes('android-app://') || // For Android TWA
-      window.location.search.includes('mode=standalone'); // Fallback param
+      document.referrer.includes('android-app://') || 
+      window.location.search.includes('mode=standalone');
       
-    console.log('MallowMoney Display Mode:', isStandalone ? 'Standalone' : 'Browser');
-    
-    if (isStandalone) return false;
-    
-    // For browser, always show landing first unless they just came from it
-    return !sessionStorage.getItem('skipLanding');
+    // Set a flag that we've checked this
+    if (isStandalone) sessionStorage.setItem('skipLanding', 'true');
+    return !isStandalone && !sessionStorage.getItem('skipLanding');
   });
 
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -79,34 +77,79 @@ function App() {
     navigator.standalone
   );
 
+  const [isInAppBrowser] = useState(() => 
+    /FBAN|FBAV|Instagram|Messenger|Pinterest|Snapchat|Line|WhatsApp/i.test(navigator.userAgent)
+  );
+
   useEffect(() => {
+    // Initial check for captured prompt
+    if (window.deferredPrompt) {
+      setDeferredPrompt(window.deferredPrompt);
+    }
+
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      window.deferredPrompt = e;
       console.log('PWA Install Prompt Ready');
     };
+
+    // Periodic check since some browsers might fire before this effect or globally
+    const interval = setInterval(() => {
+      if (window.deferredPrompt && !deferredPrompt) {
+        setDeferredPrompt(window.deferredPrompt);
+      }
+    }, 1000);
 
     window.addEventListener('beforeinstallprompt', handler);
     window.addEventListener('appinstalled', () => {
       setIsInstalled(true);
       setDeferredPrompt(null);
+      window.deferredPrompt = null;
     });
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      clearInterval(interval);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleInstall = async () => {
     if (audioManager) audioManager.playSFX('click');
-    if (!deferredPrompt) {
-      console.log('Install prompt not deferred yet');
+    
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (isStandalone) {
+      alert('Naka-install na si Mallow! Buksan ang app gamit ang icon sa Home Screen o Desktop.');
+      setIsInstalled(true);
       return;
     }
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setDeferredPrompt(null);
+
+    if (!isSecure) {
+      alert('OPPS! PWA requires a SECURE connection (HTTPS). Kung gumagamit ka ng mobile, i-access ang app gamit ang "localhost" via USB o gumamit ng HTTPS connection para mainstall.');
+      return;
+    }
+
+    if (!deferredPrompt) {
+      console.log('PWA: No prompt available');
+      // If no prompt, it might be already installed but browser hasn't detected it, or browser doesn't support it.
+      alert('Paki-wait lang, Mallow! Kung ayaw lumabas ng prompt, subukan ang (...) "Install App" o "Add to Home Screen" sa iyong browser menu.');
+      return;
+    }
+    
+    try {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        window.deferredPrompt = null;
+        setIsInstalled(true);
+        sessionStorage.setItem('skipLanding', 'true');
+        setShowLanding(false);
+      }
+    } catch (err) {
+      console.error('PWA Error:', err);
     }
   };
 
@@ -210,8 +253,9 @@ function App() {
             onStart={startAsGuest} 
             onLogin={login}
             onInstall={handleInstall}
-            isInstallable={!!deferredPrompt}
             isInstalled={isInstalled}
+            isInstallable={!!deferredPrompt}
+            isInAppBrowser={isInAppBrowser}
           />
         ) : (!user && !isGuest) ? (
           <motion.div 
@@ -245,12 +289,14 @@ function App() {
                 </button>
               </div>
 
-              <button 
-                onClick={() => setShowLanding(true)}
-                className="mt-8 font-pixel text-sm opacity-40 hover:opacity-100 transition-opacity uppercase tracking-widest underline decoration-dotted"
-              >
-                Go Back to Landing Page
-              </button>
+              {!isInstalled && (
+                <button 
+                  onClick={() => setShowLanding(true)}
+                  className="mt-8 font-pixel text-sm opacity-40 hover:opacity-100 transition-opacity uppercase tracking-widest underline decoration-dotted"
+                >
+                  Go Back to Landing Page
+                </button>
+              )}
             </motion.div>
           </motion.div>
         ) : (
