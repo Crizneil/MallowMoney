@@ -58,4 +58,14 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'vendor-ui': ['framer-motion', 'lucide-react', 'recharts'],
+        }
+      }
+    }
+  }
 })

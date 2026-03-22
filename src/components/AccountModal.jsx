@@ -50,7 +50,7 @@ const AccountModal = ({ isOpen, onClose, onAdd, accounts = [], onDelete }) => {
             {accounts.length > 0 && (
               <div className="mb-8 border-b-2 border-black/5 dark:border-white/5 pb-6">
                 <h3 className="font-pixel text-[12px] opacity-40 mb-3 text-center uppercase font-bold tracking-tight">Aking Listahan</h3>
-                <div className="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-2 max-h-32 overflow-y-auto pr-2 scrollbar-hide">
                   {accounts.map(acc => (
                     <div key={acc.id} className="flex justify-between items-center bg-black/5 dark:bg-white/5 p-3 rounded-xl border-2 border-transparent hover:border-black/5 dark:hover:border-white/5 transition-all">
                       <p className="font-bold text-sm truncate opacity-80 pl-1">{acc.name}</p>

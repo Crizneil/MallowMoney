@@ -27,6 +27,7 @@ import { audioManager } from './utils/audioManager';
 import DebtsModal from './components/DebtsModal';
 import ConfirmModal from './components/ConfirmModal';
 import FloatingActionButton from './components/FloatingActionButton';
+import NicknameModal from './components/NicknameModal';
 
 function App() {
   const [loadingApp, setLoadingApp] = useState(true);
@@ -34,6 +35,8 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isGuest, setIsGuest] = useState(() => sessionStorage.getItem('guestMode') === 'true');
+  const [showNicknameModal, setShowNicknameModal] = useState(false);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
 
   // Authentication State Observer
   useEffect(() => {
@@ -46,6 +49,13 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthChecked(true);
+      if (currentUser) {
+        const lastLogin = sessionStorage.getItem('lastLoginTime');
+        if (!lastLogin) {
+          setIsFirstLogin(true);
+          sessionStorage.setItem('lastLoginTime', Date.now().toString());
+        }
+      }
     });
 
     return () => {
@@ -159,7 +169,8 @@ function App() {
     transactions, accounts, categories, debts, subscriptions,
     addTransaction, deleteTransaction, addAccount, deleteAccount,
     addCategory, deleteCategory, addDebt, updateDebt, deleteDebt,
-    addSubscription, deleteSubscription, balance 
+    addSubscription, deleteSubscription, balance,
+    nickname, loadingProfile, updateNickname
   } = useFinanceData(user);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -178,6 +189,20 @@ function App() {
   useEffect(() => {
     localStorage.setItem('mallow_privacy_mode', JSON.stringify(showBalance));
   }, [showBalance]);
+
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [isReturningUser, setIsReturningUser] = useState(() => localStorage.getItem('mallow_has_visited') === 'true');
+
+  // Trigger Welcome Screen
+  useEffect(() => {
+    if ((user || isGuest) && !sessionStorage.getItem('welcomeShown')) {
+      setShowWelcome(true);
+      sessionStorage.setItem('welcomeShown', 'true');
+      if (!isReturningUser) {
+        localStorage.setItem('mallow_has_visited', 'true');
+      }
+    }
+  }, [user, isGuest, isReturningUser]);
 
   // Auth Functions
   const login = async () => {
@@ -201,13 +226,19 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      if (user) await signOut(auth);
-      setLoadingApp(true); // Trigger loading screen after logout
-      sessionStorage.clear(); // Clear all session flags
-      setIsGuest(false);
-      setShowLanding(false); // Go directly to welcome/login screen
+      setLoadingApp(true); // Start the loading animation
+      if (user) await signOut(auth); // Sign out from Firebase
+      
+      // Wait for 2 seconds to show the loading screen for a smooth aesthetic
+      setTimeout(() => {
+        // Clear all session states and force a hard refresh
+        // This ensures the App component remounts cleanly and triggers the standard loading flow
+        sessionStorage.clear();
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       console.error('Error signing out', error);
+      setLoadingApp(false);
     }
   };
 
@@ -245,12 +276,17 @@ function App() {
     return '• • • •';
   };
 
-  if (loadingApp || !authChecked) {
+  if (loadingApp || !authChecked || loadingProfile) {
     return <LoadingScreen onComplete={() => setLoadingApp(false)} />;
   }
 
   return (
-    <div className="min-h-screen w-full bg-mallow-light-bg dark:bg-space-bg text-mallow-light-text dark:text-white font-sans selection:bg-black/10 dark:selection:bg-white/20 transition-colors duration-300 overflow-x-hidden flex justify-center">
+    <div className="min-h-screen w-full lg:max-w-7xl mx-auto bg-mallow-light-bg dark:bg-space-bg text-mallow-light-text dark:text-white font-sans selection:bg-black/10 dark:selection:bg-white/20 transition-colors duration-300 overflow-x-hidden flex justify-center scrollbar-hide">
+      <NicknameModal 
+        isOpen={user && !loadingProfile && isFirstLogin && !nickname} 
+        onSubmit={updateNickname} 
+      />
+      
       <AnimatePresence mode="wait">
         {showLanding ? (
           <LandingPage 
@@ -304,6 +340,28 @@ function App() {
               )}
             </motion.div>
           </motion.div>
+        ) : showWelcome ? (
+          <motion.div 
+            key="welcome-splash"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex flex-col items-center justify-center min-h-screen p-4"
+          >
+            <div className="text-center space-y-4 mb-2">
+              <h1 className="text-3xl font-pixel text-mallow-light-text dark:text-[#7DCED9]">
+                {isReturningUser ? 'WELCOME BACK' : 'WELCOME'}
+              </h1>
+              <p className="text-4xl md:text-5xl font-black text-black dark:text-white uppercase tracking-tighter">
+                {nickname ? (
+                  <span className="font-pixel text-[2.5rem] leading-none mb-2 block">{nickname}</span>
+                ) : 'MallowMoney'}
+              </p>
+            </div>
+            <div className="relative h-64 w-full flex items-center justify-center pointer-events-none">
+               <PixelMallow variant="welcome" onComplete={() => setShowWelcome(false)} theme={theme} />
+            </div>
+          </motion.div>
         ) : (
           <motion.div 
             key="dashboard"
@@ -314,8 +372,14 @@ function App() {
           >
             <header className="flex justify-between items-center mb-8">
               <div>
-                <h1 className="text-xl md:text-2xl font-press-start tracking-tighter text-mallow-light-text dark:text-white">MallowMoney</h1>
-                <p className="font-pixel text-lg opacity-60 leading-none mt-1">Ang iyong ipon buddy!</p>
+                <h1 className="text-xl md:text-2xl font-press-start tracking-tighter text-mallow-light-text dark:text-white uppercase">
+                  {nickname ? `HI ${nickname}!` : 'MallowMoney'}
+                </h1>
+                {!nickname && (
+                  <p className="font-pixel text-lg opacity-60 leading-none mt-1">
+                    Ang iyong ipon buddy!
+                  </p>
+                )}
               </div>
               <div className="flex items-center space-x-3">
                 <div 
@@ -400,7 +464,6 @@ function App() {
                 <div className="glass-card p-6 border-l-4 border-mallow-light-blue dark:border-transparent">
                   <div className="flex items-center space-x-2 opacity-40 mb-4">
                     <Wallet size={16} />
-                    <span className="font-pixel text-sm uppercase tracking-wider">MGA ACCOUNT</span>
                   </div>
                   <div className="space-y-3">
                     {accounts.map(acc => (
@@ -501,7 +564,7 @@ function App() {
         confirmText="SIGE" 
         cancelText="HINDI" 
       />
-    </div>
+      </div>
   );
 }
 

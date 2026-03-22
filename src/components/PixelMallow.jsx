@@ -18,7 +18,7 @@ const MONEY_NOTES = [
   "Mallow knows your secrets... 🤫",
 ];
 
-const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleMusic, isPlayingMusic }) => {
+const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleMusic, isPlayingMusic, onComplete }) => {
   const [noteIndex, setNoteIndex] = useState(0);
   const [showNote, setShowNote] = useState(true);
   const [isBlinking, setIsBlinking] = useState(false);
@@ -62,6 +62,12 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
   useEffect(() => {
     if (variant !== 'welcome') return;
 
+    // Call onComplete after initial animation (around 3s for better UX)
+    let completeTimer;
+    if (onComplete) {
+      completeTimer = setTimeout(onComplete, 3000);
+    }
+
     const coinInterval = setInterval(() => {
       setCoinKey(prev => prev + 1);
       // Wait for the coin to "hit" (around 1.8s into a 2s animation)
@@ -71,8 +77,11 @@ const PixelMallow = ({ balance, theme, variant = 'default', scale = 1, onToggleM
       }, 1800);
     }, 8000); // 8 seconds cycle
 
-    return () => clearInterval(coinInterval);
-  }, [variant]);
+    return () => {
+      clearInterval(coinInterval);
+      if (completeTimer) clearTimeout(completeTimer);
+    };
+  }, [variant, onComplete]);
 
   const isRunning = variant === 'running';
   const isSaving = variant === 'saving';

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '../firebase-config';
-import { collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, deleteDoc, doc, onSnapshot, serverTimestamp, query, orderBy, updateDoc, where, setDoc } from 'firebase/firestore';
 
 const DEFAULT_CATEGORIES = [
   { name: 'Food', icon: 'Utensils' },
@@ -15,6 +15,39 @@ const DEFAULT_ACCOUNTS = [
 ];
 
 export const useFinanceData = (user) => {
+  const [nickname, setNicknameState] = useState('');
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Sync Profile (Nickname)
+  useEffect(() => {
+    if (!user) {
+      setNicknameState('');
+      setLoadingProfile(false);
+      return;
+    }
+
+    const unsubProfile = onSnapshot(doc(db, 'users', user.uid, 'profile', 'info'), (snapshot) => {
+      if (snapshot.exists()) {
+        setNicknameState(snapshot.data().nickname || '');
+      }
+      setLoadingProfile(false);
+    });
+
+    return () => unsubProfile();
+  }, [user]);
+
+  const updateNickname = async (name) => {
+    if (!user) return;
+    try {
+      await setDoc(doc(db, 'users', user.uid, 'profile', 'info'), { 
+        nickname: name,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    } catch (e) {
+      console.error("Error updating nickname:", e);
+    }
+  };
+
   const [transactions, setTransactions] = useState(() => {
     const saved = localStorage.getItem('mallow_transactions');
     if (saved) {
@@ -89,19 +122,19 @@ export const useFinanceData = (user) => {
     // Sync Transactions
     const qTxs = query(collection(db, 'users', user.uid, 'expenses'), orderBy('createdAt', 'desc'));
     const unsubTxs = onSnapshot(qTxs, (snapshot) => {
-      setTransactions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setTransactions(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
     });
 
     // Sync Debts
     const qDebts = query(collection(db, 'users', user.uid, 'debts'), orderBy('createdAt', 'desc'));
     const unsubDebts = onSnapshot(qDebts, (snapshot) => {
-      setDebts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setDebts(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
     });
 
     // Sync Subscriptions
     const qSubs = query(collection(db, 'users', user.uid, 'subscriptions'), orderBy('createdAt', 'desc'));
     const unsubSubs = onSnapshot(qSubs, (snapshot) => {
-      setSubscriptions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setSubscriptions(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
     });
 
     return () => {
@@ -127,7 +160,10 @@ export const useFinanceData = (user) => {
     }
 
     try {
-      await addDoc(collection(db, 'users', user.uid, 'expenses'), newTransaction);
+      await addDoc(collection(db, 'users', user.uid, 'expenses'), {
+        ...newTransaction,
+        userId: user.uid // Explicitly include userId for easier querying/rules
+      });
     } catch (e) {
       console.error("Error adding transaction: ", e);
     }
@@ -154,7 +190,11 @@ export const useFinanceData = (user) => {
       return;
     }
     try {
-      await addDoc(collection(db, 'users', user.uid, 'debts'), newDebt);
+      const { id, ...firebaseData } = newDebt;
+      await addDoc(collection(db, 'users', user.uid, 'debts'), {
+        ...firebaseData,
+        userId: user.uid // Explicitly include userId for easier querying/rules
+      });
     } catch (e) {
       console.error("Error adding debt: ", e);
     }
@@ -172,20 +212,6 @@ export const useFinanceData = (user) => {
     }
   };
 
-  const deleteDebt = async (id) => {
-    console.log("Attempting to delete debt:", id);
-    if (!user) {
-      setDebts(prev => prev.filter(d => d.id !== id));
-      return;
-    }
-    try {
-      await deleteDoc(doc(db, 'users', user.uid, 'debts', id));
-      console.log("Successfully deleted debt from Firebase:", id);
-    } catch (e) {
-      console.error("Error deleting debt: ", e);
-    }
-  };
-
   // Subscriptions Helpers
   const addSubscription = async (sub) => {
     const newSub = { ...sub, id: Date.now().toString(), createdAt: serverTimestamp() };
@@ -195,23 +221,57 @@ export const useFinanceData = (user) => {
       return;
     }
     try {
-      await addDoc(collection(db, 'users', user.uid, 'subscriptions'), newSub);
+      const { id, ...firebaseData } = newSub;
+      await addDoc(collection(db, 'users', user.uid, 'subscriptions'), {
+        ...firebaseData,
+        userId: user.uid // Explicitly include userId for easier querying/rules
+      });
     } catch (e) {
       console.error("Error adding subscription: ", e);
     }
   };
 
-  const deleteSubscription = async (id) => {
-    console.log("Attempting to delete subscription:", id);
-    if (!user) {
-      setSubscriptions(prev => prev.filter(s => s.id !== id));
+  const deleteDebt = async (id) => {
+    if (!user || !user.uid) {
+      console.error("[Firebase] Cannot delete: user.uid is missing!", user);
+      if (!user) {
+        setDebts(prev => prev.filter(d => d.id !== id));
+      } else {
+        alert("Error: Missing user ID. Please try logging out and in again.");
+      }
       return;
     }
     try {
-      await deleteDoc(doc(db, 'users', user.uid, 'subscriptions', id));
-      console.log("Successfully deleted subscription from Firebase:", id);
+      const debtRef = doc(db, 'users', user.uid, 'debts', id);
+      console.log(`[Firebase] Path to delete: users/${user.uid}/debts/${id}`);
+      await deleteDoc(debtRef);
+      console.log(`[Firebase] Successfully deleted debt ${id}`);
+      alert("Utang deleted successfully! 💸");
     } catch (e) {
-      console.error("Error deleting subscription: ", e);
+      console.error(`[Firebase Error] Debt deletion failed:`, e.code, e.message);
+      alert(`Hindi mabura ang utang.\nError: ${e.code}\nMessage: ${e.message}`);
+    }
+  };
+
+  const deleteSubscription = async (id) => {
+    if (!user || !user.uid) {
+      console.error("[Firebase] Cannot delete sub: user.uid is missing!", user);
+      if (!user) {
+        setSubscriptions(prev => prev.filter(s => s.id !== id));
+      } else {
+        alert("Error: Missing user ID. Please try logging out and in again.");
+      }
+      return;
+    }
+    try {
+      const subRef = doc(db, 'users', user.uid, 'subscriptions', id);
+      console.log(`[Firebase] Path to delete: users/${user.uid}/subscriptions/${id}`);
+      await deleteDoc(subRef);
+      console.log(`[Firebase] Successfully deleted sub ${id}`);
+      alert("Subscription record cleared! 🗓️");
+    } catch (e) {
+      console.error(`[Firebase Error] Subscription deletion failed:`, e.code, e.message);
+      alert(`Hindi mabura ang subscription.\nError: ${e.code}\nMessage: ${e.message}`);
     }
   };
 
@@ -253,6 +313,9 @@ export const useFinanceData = (user) => {
     categories,
     debts,
     subscriptions,
+    nickname,
+    loadingProfile,
+    updateNickname,
     addTransaction, 
     deleteTransaction, 
     addAccount,
@@ -267,4 +330,3 @@ export const useFinanceData = (user) => {
     balance: totalBalance 
   };
 };
-

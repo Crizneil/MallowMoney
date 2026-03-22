@@ -130,7 +130,7 @@ const DebtsModal = ({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-4 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-4 scrollbar-hide">
               
               {/* Content Toggle */}
               {!showAddForm ? (
@@ -384,10 +384,23 @@ const DebtsModal = ({
         onClose={() => setConfirmAction(null)}
         onConfirm={() => {
           if (confirmAction.type === 'settle') {
-            handleSettleDebt(confirmAction.data, confirmAction.data.balance);
+            // Log final payment manually instead of handleSettleDebt to avoid updateDoc/deleteDoc race condition
+            const amount = confirmAction.data.balance;
+            addTransaction({
+              amount: confirmAction.data.type === 'owe' ? -amount : amount,
+              category: 'Debt Payment',
+              note: `Paid/Settled: ${confirmAction.data.person}`,
+              type: confirmAction.data.type === 'owe' ? 'expense' : 'income'
+            });
             deleteDebt(confirmAction.id);
           } else if (confirmAction.type === 'pay') {
-            logSubPayment(confirmAction.data);
+            // Log subscription payment manually
+            addTransaction({
+              amount: -confirmAction.data.amount,
+              category: 'Subscription',
+              note: `Subscription: ${confirmAction.data.name}`,
+              type: 'expense'
+            });
             deleteSubscription(confirmAction.id);
           } else if (confirmAction.type === 'delete_settled') {
             deleteDebt(confirmAction.id);

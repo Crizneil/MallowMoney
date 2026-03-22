@@ -71,7 +71,7 @@ const CategoryModal = ({ isOpen, onClose, onAdd, categories = [], transactions =
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full max-w-sm max-h-[90vh] overflow-y-auto custom-scrollbar bg-mallow-light-bg dark:bg-space-bg p-6 rounded-3xl shadow-2xl border-2 border-mallow-light-blue dark:border-white/10"
+            className="relative w-full max-w-sm max-h-[90vh] overflow-y-auto scrollbar-hide bg-mallow-light-bg dark:bg-space-bg p-6 rounded-3xl shadow-2xl border-2 border-mallow-light-blue dark:border-white/10"
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-press-start text-mallow-light-text dark:text-white">Kategorya</h2>
@@ -90,7 +90,7 @@ const CategoryModal = ({ isOpen, onClose, onAdd, categories = [], transactions =
             {categories.length > 0 && (
               <div className="mb-8 border-b-2 border-black/5 dark:border-white/5 pb-6">
                 <h3 className="font-pixel text-[12px] opacity-40 mb-3 text-center uppercase font-bold tracking-tight">Ating Kategorya</h3>
-                <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2 scrollbar-hide">
                   {categories.map(cat => {
                     const isUsed = transactions.some(t => t.category === cat.name);
                     return (
@@ -130,7 +130,7 @@ const CategoryModal = ({ isOpen, onClose, onAdd, categories = [], transactions =
 
               <div>
                 <label className="block font-pixel text-lg opacity-40 mb-2">Pumili ng Icon</label>
-                <div className="grid grid-cols-4 gap-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="grid grid-cols-4 gap-3 max-h-40 overflow-y-auto pr-2 scrollbar-hide">
                   {ICONS.map((icon) => {
                     const IconComp = icon.component;
                     return (
