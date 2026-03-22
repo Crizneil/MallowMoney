@@ -212,7 +212,6 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }
           
           <div className="w-full h-[2px] bg-mallow-light-blue/20 mb-10" />
 
-          {/* Action Button */}
           <div className="flex flex-col items-center w-full max-w-md">
             <button
               onClick={handleDownloadClick}
@@ -221,9 +220,6 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }
               <Download size={28} />
               DOWNLOAD NOW
             </button>
-            <p className="mt-4 font-pixel text-sm opacity-40 text-center px-4">
-              I-click ang button para ma-install ang app!
-            </p>
           </div>
         </motion.div>
       </section>
