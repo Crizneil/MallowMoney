@@ -30,21 +30,15 @@ const TypingAnimation = ({ text, className }) => {
 const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }) => {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [isHoveringAvatar, setIsHoveringAvatar] = useState(false);
-  const [error, setError] = useState('');
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isInAppBrowser = /FBAN|FBAV|Instagram|Messenger|Pinterest|Snapchat|Line|WhatsApp/i.test(navigator.userAgent);
-  const isChrome = /Chrome/i.test(navigator.userAgent) && /Google Inc/i.test(navigator.vendor);
 
   const handleDownloadClick = () => {
-    audioManager.playSFX('click');
-    if (isInAppBrowser || isIOS) {
-      setShowInstallModal(true);
-    } else if (isInstallable) {
+    if (audioManager) audioManager.playSFX('click');
+    
+    if (isInstallable) {
       onInstall(); 
-    } else if (isChrome) {
-      // If in Chrome but prompt not ready, show the shortcut instruction instead of just an error
-      setShowInstallModal(true);
     } else {
       setShowInstallModal(true);
     }
@@ -89,7 +83,7 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }
                     </div>
                     <div>
                       <h3 className="font-bold text-sm mb-1 text-orange-600">Open in Browser</h3>
-                      <p className="text-xs opacity-70 leading-relaxed">You're in an in-app browser. Tap the three dots or Share icon and select "Open in Browser" to install!</p>
+                      <p className="text-xs opacity-70 leading-relaxed">I-tap ang three dots o Share icon at piliin ang **"Open in Browser"**.</p>
                     </div>
                   </div>
                 )}
@@ -101,46 +95,32 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }
                     </div>
                     <div>
                       <h3 className="font-bold text-sm mb-1">iOS (iPhone/iPad)</h3>
-                      <p className="text-xs opacity-70 leading-relaxed">Tap the <Share size={14} className="inline mx-1" /> icon then select <strong>"Add to Home Screen"</strong></p>
+                      <p className="text-xs opacity-70 leading-relaxed">I-tap ang <Share size={14} className="inline mx-1" /> icon at piliin ang **"Add to Home Screen"**.</p>
                     </div>
                   </div>
                 )}
 
-                {!isChrome && !isIOS && !isInAppBrowser && (
-                  <div className="flex items-start gap-4 p-4 bg-orange-100 rounded-2xl border-2 border-orange-200">
-                    <div className="p-2 bg-white rounded-xl shadow-sm">
-                      <Monitor size={20} className="text-orange-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-sm mb-1 text-orange-700">Gamitin ang Chrome!</h3>
-                      <p className="text-xs opacity-70 leading-relaxed text-orange-800">
-                        Para sa pinakamagandang experience at direct install, i-copy ang link at i-paste sa <strong>Google Chrome</strong>.
-                      </p>
-                      <button 
-                        onClick={() => {
-                          navigator.clipboard.writeText(window.location.href);
-                          audioManager.playSFX('click');
-                          alert('Link copied! Paste it in Chrome.');
-                        }}
-                        className="mt-2 text-[10px] font-press-start text-orange-600 underline"
-                      >
-                        COPY APP LINK
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {isChrome && !isIOS && !isInAppBrowser && (
+                {!isIOS && !isInAppBrowser && (
                   <div className="flex items-start gap-4 p-4 bg-mallow-light-blue/10 rounded-2xl border-2 border-mallow-light-blue/20">
                     <div className="p-2 bg-white rounded-xl shadow-sm">
                       <Monitor size={20} className="text-mallow-light-text" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm mb-1">Chrome Installation</h3>
-                      <p className="text-xs opacity-70 leading-relaxed text-mallow-light-text">
-                        I-click ang <strong>three dots</strong> sa menu o ang <strong>Install icon</strong> sa address bar. 
-                        Piliin ang <strong>"Save and Share"</strong> &gt; <strong>"Install App"</strong> o <strong>"Create Shortcut"</strong> (siguraduhing i-check ang "Open as window").
+                      <h3 className="font-bold text-sm mb-1">Chrome / Android</h3>
+                      <p className="text-xs opacity-70 leading-relaxed">
+                        I-copy ang link at i-paste sa **Google Chrome**. 
+                        I-click ang three dots at piliin ang **"Install App"** o **"Create Shortcut"**.
                       </p>
+                      <button 
+                        onClick={() => {
+                          navigator.clipboard.writeText(window.location.href);
+                          if (audioManager) audioManager.playSFX('click');
+                          alert('Link copied! Paste it in Chrome.');
+                        }}
+                        className="mt-2 text-[10px] font-press-start text-mallow-light-blue underline"
+                      >
+                        COPY APP LINK
+                      </button>
                     </div>
                   </div>
                 )}
@@ -242,15 +222,9 @@ const LandingPage = ({ onStart, onLogin, onInstall, isInstallable, isInstalled }
               DOWNLOAD NOW
             </button>
             <p className="mt-4 font-pixel text-sm opacity-40 text-center px-4">
-              Para sa pinakamagandang experience, i-install ito gamit ang Google Chrome.
+              I-click ang button para ma-install ang app!
             </p>
           </div>
-
-          {error && (
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 font-pixel text-sm text-red-500 font-bold text-center">
-              {error}
-            </motion.p>
-          )}
         </motion.div>
       </section>
 

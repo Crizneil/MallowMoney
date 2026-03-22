@@ -9,10 +9,8 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script', // Explicitly inject registration script
       devOptions: {
-        enabled: true,
-        type: 'module' // Use module type for better dev support
+        enabled: true
       },
       includeAssets: ['favicon.png', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
